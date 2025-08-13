@@ -1,85 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>MP3 to Text Converter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#fafafa}
-    .container{text-align:center;border:2px dashed #007bff;padding:30px;border-radius:10px;width:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
-    .drop-area{padding:20px;border:2px dashed #4CAF50;cursor:pointer;margin-bottom:20px;transition:background-color .3s}
-    .drop-area:hover{background-color:#f0f0f0}
-    .file-input{display:none}
-    .file-name{margin:10px 0}
-    .button{padding:10px 20px;background:#007bff;color:#fff;border:none;cursor:pointer;border-radius:5px;transition:background-color .3s}
-    .button:hover{background:#0056b3}
-    .status{margin-top:15px;font-size:14px;color:#555}
-    .error{color:red;font-weight:bold}
-    .success{color:green;font-weight:bold}
-  </style>
+    <meta charset="UTF-8" />
+    <title>MP3 to Text Converter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #fafafa;
+        }
+        .container {
+            text-align: center;
+            border: 2px dashed #007bff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 50%;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .drop-area {
+            padding: 20px;
+            border: 2px dashed #4CAF50;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        .drop-area:hover {
+            background-color: #f0f0f0;
+        }
+        .file-input {
+            display: none;
+        }
+        .file-name {
+            margin: 10px 0;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>MP3 to Text Converter</h1>
-    <div class="drop-area" id="drop-area">
-      <p>Drag & Drop MP3 file here or click to browse</p>
-      <input type="file" id="file-input" class="file-input" accept=".mp3" />
+    <div class="container">
+        <h1>MP3 to Text Converter</h1>
+        <div class="drop-area" id="drop-area">
+            <p>Drag & Drop MP3 file here or click to browse</p>
+            <input type="file" id="file-input" class="file-input" accept=".mp3" />
+        </div>
+        <div class="file-name" id="file-name"></div>
+        <button class="button" id="transcribe-button" disabled>Transcribe</button>
+        <div class="status" id="status"></div>
     </div>
-    <div class="file-name" id="file-name"></div>
-    <button class="button" id="transcribe-button" disabled>Transcribe</button>
-    <div class="status" id="status"></div>
-  </div>
-  <script>
-    const API_BASE = "https://mp3-to-text-backend.onrender.com"; // your Render URL
-    const dropArea = document.getElementById("drop-area");
-    const fileInput = document.getElementById("file-input");
-    const fileNameDisplay = document.getElementById("file-name");
-    const transcribeButton = document.getElementById("transcribe-button");
-    const statusMessage = document.getElementById("status");
-    let fileToUpload = null;
+    <script>
+        const API_BASE = 'https://mp3-to-text-backend.onrender.com'; // Make sure this is your Render URL
 
-    dropArea.addEventListener("click", () => fileInput.click());
-    dropArea.addEventListener("dragover", e => { e.preventDefault(); dropArea.style.backgroundColor="#f0f0f0"; });
-    dropArea.addEventListener("dragleave", () => dropArea.style.backgroundColor="white");
-    dropArea.addEventListener("drop", e => { e.preventDefault(); dropArea.style.backgroundColor="white"; fileToUpload=e.dataTransfer.files[0]; displayFile(fileToUpload); });
-    fileInput.addEventListener("change", () => { fileToUpload=fileInput.files[0]; displayFile(fileToUpload); });
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const transcribeButton = document.getElementById('transcribe-button');
+        const statusMessage = document.getElementById('status');
+        let fileToUpload = null;
 
-    function displayFile(file) {
-      statusMessage.textContent="";
-      if(file && file.name.toLowerCase().endsWith(".mp3")){ fileNameDisplay.textContent=file.name; transcribeButton.disabled=false; }
-      else{ fileNameDisplay.textContent="Invalid file type. Please select an MP3."; transcribeButton.disabled=true; }
-    }
+        dropArea.addEventListener('click', () => fileInput.click());
+        dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.style.backgroundColor = '#f0f0f0'; });
+        dropArea.addEventListener('dragleave', () => { dropArea.style.backgroundColor = 'white'; });
+        dropArea.addEventListener('drop', (e) => { 
+            e.preventDefault(); 
+            dropArea.style.backgroundColor = 'white'; 
+            fileToUpload = e.dataTransfer.files[0]; 
+            displayFile(fileToUpload); 
+        });
+        fileInput.addEventListener('change', () => { 
+            fileToUpload = fileInput.files[0]; 
+            displayFile(fileToUpload); 
+        });
 
-    transcribeButton.addEventListener("click", () => {
-      if(!fileToUpload) return;
-      const formData = new FormData();
-      formData.append("file", fileToUpload);
-      transcribeButton.disabled=true;
-      transcribeButton.textContent="Transcribing...";
-      statusMessage.textContent="";
-      statusMessage.className="status";
+        function displayFile(file) {
+            statusMessage.textContent = '';
+            if (file && file.name.toLowerCase().endsWith('.mp3')) {
+                fileNameDisplay.textContent = file.name;
+                transcribeButton.disabled = false;
+            } else {
+                fileNameDisplay.textContent = 'Invalid file type. Please select an MP3.';
+                transcribeButton.disabled = true;
+            }
+        }
 
-      fetch(`${API_BASE}/upload`, { method:"POST", body:formData })
-      .then(async response => {
-        if(!response.ok){ const err=await response.json().catch(()=>({error:"Unknown server error"})); throw new Error(err.error || "Transcription failed."); }
-        return response.blob();
-      })
-      .then(blob => {
-        const downloadUrl=URL.createObjectURL(blob);
-        const link=document.createElement("a");
-        link.href=downloadUrl;
-        link.download="transcription.txt";
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        transcribeButton.textContent="Transcribe";
-        fileNameDisplay.textContent="";
-        statusMessage.textContent="Done! Your transcription file has been downloaded.";
-        statusMessage.className="status success";
-      })
-      .catch(error => { statusMessage.textContent="Error: "+error.message; statusMessage.className="status error"; transcribeButton.textContent="Transcribe"; })
-      .finally(()=>{ transcribeButton.disabled=false; });
-    });
-  </script>
+        transcribeButton.addEventListener('click', () => {
+            if (!fileToUpload) return;
+            const formData = new FormData();
+            formData.append('file', fileToUpload);
+
+            transcribeButton.disabled = true;
+            transcribeButton.textContent = 'Transcribing...';
+            statusMessage.textContent = 'Transcribing... This may take several minutes for large files.';
+            statusMessage.className = 'status';
+
+            fetch(`${API_BASE}/upload`, { method: 'POST', body: formData })
+                .then(async response => {
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({ error: 'Unknown server error' }));
+                        throw new Error(err.error || 'Transcription failed.');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'transcription.txt';
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    transcribeButton.textContent = 'Transcribe';
+                    fileNameDisplay.textContent = '';
+                    statusMessage.textContent = 'Done! Your transcription file has been downloaded.';
+                    statusMessage.className = 'status success';
+                })
+                .catch(error => {
+                    statusMessage.textContent = 'Error: ' + error.message;
+                    statusMessage.className = 'status error';
+                    transcribeButton.textContent = 'Transcribe';
+                })
+                .finally(() => {
+                    transcribeButton.disabled = false;
+                });
+        });
+    </script>
 </body>
 </html>
